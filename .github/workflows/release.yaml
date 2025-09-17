@@ -66,5 +66,4 @@ jobs:
           PREFIX="rules_apko-$TAG"
           ARCHIVE="rules_apko-$TAG.tar.gz"
           git archive --format=tar.gz --prefix=${PREFIX}/ ${TAG} > $ARCHIVE
-          gh release create ${TAG} --draft --generate-notes $ARCHIVE
-          gh release edit ${TAG} --draft=false
+          gh release create ${TAG} --generate-notes $ARCHIVE
