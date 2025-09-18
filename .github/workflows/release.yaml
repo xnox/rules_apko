@@ -46,7 +46,7 @@ jobs:
           TAG=${{ steps.create_tag.outputs.git_tag }}
           PREFIX="rules_apko-${TAG#v}"
           ARCHIVE="rules_apko-$TAG.tar.gz"
-          git archive --format=tar.gz --prefix=${PREFIX}/ ${TAG} > $ARCHIVE
+          git archive --format=tar.gz --prefix=${PREFIX}/ HEAD > $ARCHIVE
           gh release create ${TAG} --fail-on-no-commits --target --generate-notes $ARCHIVE
 
   token:
