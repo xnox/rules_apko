@@ -81,15 +81,16 @@ jobs:
       - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
         id: octo-sts
         with:
-          scope: chainguard-dev/bazel-central-registry
-          identity: release-rules-apko
+          scope: xnox/bazel-central-registry
+          identity: release-rules-apko2
 
   bcr-publish:
     uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@748dc7186bc60d0e24a81ee30aba8aa543794767 # v1.0.0
     needs: token
     with:
       tag_name: ${{ needs.gh-release.outputs.tag_name }}
-      registry_fork: chainguard-dev/bazel-central-registry
+      registry_fork: xnox/bazel-central-registry
+      registry: chainguard-dev/bazel-central-registry
       attest: false
       draft: true
     permissions:
