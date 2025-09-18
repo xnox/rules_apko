@@ -57,7 +57,7 @@ jobs:
     outputs:
       token: "${{ steps.octo-sts.outputs.token }}"
     steps:
-      - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
+      - uses: xnox/octo-sts-action@main
         id: octo-sts
         with:
           scope: xnox/bazel-central-registry
