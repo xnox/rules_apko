@@ -89,7 +89,8 @@ jobs:
     needs: token
     with:
       tag_name: ${{ needs.gh-release.outputs.tag_name }}
-      registry_fork: chainguard-dev/bazel-central-registry
+      registry_fork: xnox/bazel-central-registry
+      registry: chainguard-dev/bazel-central-registry
       attest: false
       draft: true
     permissions:
