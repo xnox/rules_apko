@@ -81,7 +81,7 @@ jobs:
       - uses: octo-sts/action@e480437973a6f6ac2e9caa40ecabedc870d76395 # v1.0.1
         id: octo-sts
         with:
-          scope: chainguard-dev/bazel-central-registry
+          scope: xnox/bazel-central-registry
           identity: release-rules-apko
 
   bcr-publish:
