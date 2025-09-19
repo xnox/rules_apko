@@ -61,7 +61,7 @@ jobs:
 
       - working-directory: bazel-central-registry
         run: |
-          git remote add upstream https://github/chainguard-dev/bazel-central-registry
+          git remote add upstream https://github.com/chainguard-dev/bazel-central-registry
           git remote update upstream
           git reset --hard upstream/main
 
