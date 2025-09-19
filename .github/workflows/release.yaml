@@ -88,4 +88,4 @@ jobs:
           git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
           git push --force origin "${BRANCH}"
           gh repo set-default chainguard-dev/bazel-central-registry
-          gh pr create --fill-verbose
+          gh pr create --fill-verbose --head "${BRANCH}"
