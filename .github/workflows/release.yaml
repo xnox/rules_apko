@@ -63,7 +63,10 @@ jobs:
         run: |
           git remote add upstream https://github.com/chainguard-dev/bazel-central-registry
           git remote update upstream
-          git reset --hard upstream/main
+          git config remote."upstream".gh-resolved base
+          branch="rules_apko-${{ steps.create_tag.outputs.git_tag }}"
+          git checkout -b rules_apko-${{ steps.create_tag.outputs.git_tag }} upstream/main
+          git config branch."$branch".pushremote origin
 
       - name: Create final entry
         id: create-final-entry
@@ -82,10 +85,6 @@ jobs:
         working-directory: bazel-central-registry
         run: |
           set -o errexit -o nounset -o pipefail
-          BRANCH="${{ steps.create-final-entry.outputs.module-names }}-${{ steps.create_tag.outputs.git_tag }}"
-          git checkout -b "${BRANCH}"
           git add .
           git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
-          git push --force origin "${BRANCH}"
-          gh repo set-default chainguard-dev/bazel-central-registry
-          gh pr create --fill-verbose --head "${BRANCH}"
+          gh pr create --fill-verbose
