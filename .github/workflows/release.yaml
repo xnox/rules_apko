@@ -75,7 +75,6 @@ jobs:
           templates-dir: .bcr
 
       - uses: chainguard-dev/actions/setup-gitsign@cd899cc96227b82170571cad1c3d6378d8cba678 # v1.4.15
-        working-directory: bazel-central-registry
 
       - name: Create PR
         env:
