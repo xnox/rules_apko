@@ -87,4 +87,5 @@ jobs:
           set -o errexit -o nounset -o pipefail
           git add .
           git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
+          git push origin `git branch --show-current`
           gh pr create --fill-verbose
