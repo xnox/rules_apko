@@ -20,8 +20,6 @@ jobs:
       contents: write
       attestations: write
     runs-on: ubuntu-latest
-    outputs:
-      tag_name: ${{ steps.create_tag.outputs.git_tag }}
     steps:
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
@@ -29,8 +27,7 @@ jobs:
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          fetch-depth: 0 # fetch all history for all branches and tags
-          persist-credentials: false
+          fetch-tags: true
 
       - name: Calculate version bump
         id: create_tag
@@ -42,7 +39,7 @@ jobs:
 
       - name: Create immutable source code release with tag
         env:
-          GH_TOKEN: ${{ github.token }}        
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG=${{ steps.create_tag.outputs.git_tag }}
           PREFIX="rules_apko-${TAG#v}"
@@ -50,33 +47,47 @@ jobs:
           git archive --format=tar.gz --prefix=${PREFIX}/ ${{ github.sha }} > $ARCHIVE
           gh release create ${TAG} --fail-on-no-commits --target ${{ github.sha }} --generate-notes $ARCHIVE
 
-  token:
-    runs-on: ubuntu-latest
-    needs: gh-release
-    permissions:
-      id-token: write
-    outputs:
-      token: "${{ steps.octo-sts.outputs.token }}"
-    steps:
-      - uses: xnox/octo-sts-action@main
+      - uses: octo-sts/action@main
         id: octo-sts
         with:
           scope: xnox/bazel-central-registry
           identity: release-rules-apko2
-          revoke: false
 
-  bcr-publish:
-    uses: xnox/publish-to-bcr/.github/workflows/publish.yaml@main
-    needs: [gh-release, token]
-    with:
-      tag_name: ${{ needs.gh-release.outputs.tag_name }}
-      registry_fork: xnox/bazel-central-registry
-      registry: chainguard-dev/bazel-central-registry
-      attest: false
-      draft: true
-    permissions:
-      attestations: write
-      contents: write
-      id-token: write
-    secrets:
-      publish_token: ${{ needs.token.outputs.token }}
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: xnox/bazel-central-registry
+          token: ${{ steps.octo-sts.outputs.token }}
+          path: bazel-central-registry
+
+      - working-directory: bazel-central-registry
+        run: |
+          git remote add upstream https://github/chainguard-dev/bazel-central-registry
+          git remote update upstream
+          git reset --hard upstream/main
+
+      - name: Create final entry
+        id: create-final-entry
+        uses: bazel-contrib/publish-to-bcr@301f65edec7118166379e2ef5f29a05d2868a449
+        with:
+          tag: ${{ steps.create_tag.outputs.git_tag }}
+          module-version: ${{ steps.create_tag.outputs.bumped_version }}
+          local-registry: bazel-central-registry
+          templates-dir: .bcr
+
+      - name: Push to fork
+        id: push-to-fork
+        working-directory: bazel-central-registry
+        run: |
+          set -o errexit -o nounset -o pipefail
+          BRANCH="${{ steps.create-final-entry.outputs.module-names }}-${{ steps.create_tag.outputs.git_tag }}"
+          git checkout -b "${BRANCH}"
+          git add .
+          git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
+          git push --force origin "${BRANCH}"
+
+      - name: Create PR
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+        run: |
+          gh repo set-default chainguard-dev/bazel-central-registry
+          gh pr create --fill-verbose
