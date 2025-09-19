@@ -79,5 +79,4 @@ jobs:
       contents: write
       id-token: write
     secrets:
-      GITHUB_TOKEN: ${{ needs.token.outputs.token }}
       publish_token: ${{ needs.token.outputs.token }}
