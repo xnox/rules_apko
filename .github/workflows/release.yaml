@@ -74,8 +74,12 @@ jobs:
           local-registry: bazel-central-registry
           templates-dir: .bcr
 
-      - name: Push to fork
-        id: push-to-fork
+      - uses: chainguard-dev/actions/setup-gitsign@cd899cc96227b82170571cad1c3d6378d8cba678 # v1.4.15
+        working-directory: bazel-central-registry
+
+      - name: Create PR
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         working-directory: bazel-central-registry
         run: |
           set -o errexit -o nounset -o pipefail
@@ -84,10 +88,5 @@ jobs:
           git add .
           git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
           git push --force origin "${BRANCH}"
-
-      - name: Create PR
-        env:
-          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-        run: |
           gh repo set-default chainguard-dev/bazel-central-registry
           gh pr create --fill-verbose
