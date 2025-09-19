@@ -50,16 +50,6 @@ jobs:
           git archive --format=tar.gz --prefix=${PREFIX}/ ${{ github.sha }} > $ARCHIVE
           gh release create ${TAG} --fail-on-no-commits --target ${{ github.sha }} --generate-notes $ARCHIVE
 
-      - uses: xnox/octo-sts-action@main
-        id: octo-sts
-        with:
-          scope: xnox/bazel-central-registry
-          identity: release-rules-apko2
-          revoke: false
-
-      - run: |
-          git push https://x-access-token:${{ steps.octo-sts.outputs.token }}@github.com/xnox/bazel-central-registry.git HEAD:my-new-branch
-
   token:
     runs-on: ubuntu-latest
     needs: gh-release
