@@ -88,4 +88,4 @@ jobs:
           git add .
           git commit -m "${{ steps.create-final-entry.outputs.short-description }}"
           git push origin `git branch --show-current`
-          gh pr create --fill-verbose
+          gh pr create --repo chainguard-dev/bazel-central-registry --base main --head xnox:`git branch --show-current` --fill-verbose --draft
